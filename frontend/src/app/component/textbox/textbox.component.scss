@@ -1,0 +1,105 @@
+:host {
+  background: var(--black);
+  display: inline-block;
+}
+
+:host {
+  width: 100%;
+  transition: margin 100ms ease;
+
+  &, .textbox {
+    // Default border-radius
+    border-radius: .9em;
+  }
+
+  // Has content in textbox
+  &.--has-content {
+    margin-top: 2rem;
+
+    // Shift placeholder if input has a value
+    .textbox__placeholder {
+      color: var(--white);
+      transform: translateY(calc(-100% + -1.3rem - .5rem));
+    }
+  }
+}
+
+// Move to different he
+.textbox {
+  $r: &;
+
+  display: flex;
+  align-items: center;
+  padding: .5rem;
+  border: 0.15em solid var(--white);
+
+  // Wrapper to have placeholder relative to input
+  &__wrapper {
+    position: relative;
+    isolation: isolate;
+    flex-grow: 1;
+    display: flex;
+  }
+
+  // Placeholder is behind input
+  &__placeholder {
+    color: var(--white--d);
+    position: absolute;
+    inset: 50% auto auto 0;
+    z-index: 1;
+    transform: translateY(-50%);
+    transition: transform 100ms ease;
+  }
+
+  &__icon {
+    width: .95rem;
+    height: .95rem;
+    margin: 0 .5rem;
+  }
+
+  // Transparent input
+  &__input {
+    color: var(--white);
+    position: relative;
+    border: none;
+    background: transparent;
+    z-index: 2;
+    flex-grow: 1;
+    font-size: 1rem;
+
+    &:focus {
+      // No outline on focus
+      outline: none;
+    }
+  }
+
+  // Validation passed
+  @at-root :host.--valid & {
+    border: 0.20em solid var(--success);
+  }
+
+  // Validation failed
+  @at-root :host.--invalid & {
+    border: 0.20em solid var(--warning);
+    background: var(--warning--do);
+  }
+}
+
+.errors {
+  text-align: center;
+
+  :host::ng-deep & p {
+    color: var(--warning);
+    &:only-child {
+      padding: .5rem 0;
+    }
+
+    &:not(:only-child) &:first-of-type {
+      padding-top: .5rem;
+    }
+
+    &:not(:only-child) &:last-of-type {
+      padding-bottom: .5rem;
+    }
+  }
+}

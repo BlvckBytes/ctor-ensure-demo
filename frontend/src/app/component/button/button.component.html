@@ -1,0 +1,12 @@
+<!-- Actual button text -->
+<p>{{text}}</p>
+
+<!-- Arrow next to text -->
+<img
+    class="arrow"
+    src="assets/arrow.svg"
+    alt="arrow"
+>
+
+<!-- Invisible submit button -->
+<button *ngIf="submit && !disabled" type="submit"></button>

@@ -1,0 +1,21 @@
+:host {
+  position: relative;
+  background: var(--black--t);
+  min-height: 15rem;
+  min-width: 15rem;
+  border-radius: .7rem;
+  padding: 1.5rem 0;
+
+  & > h3:first-of-type {
+    position: absolute;
+    top: -1.5rem;
+    left: .2rem;
+    font-weight: 300;
+    font-size: 1rem;
+  }
+}
+
+.scrollable {
+  overflow-y: scroll;
+  height: 100%;
+}

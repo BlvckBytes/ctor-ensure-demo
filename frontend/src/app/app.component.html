@@ -1,0 +1,90 @@
+<h1>ctor-ensure-demo</h1>
+
+<div>
+  <!-- Existing users panel -->
+  <app-panel
+    title='Existing Users'
+    [scrollable]="true"
+    class="panel--user"
+  >
+
+    <!-- Individual entries -->
+    <div
+      class="user"
+      *ngFor="let user of users$ | async"
+    >
+      <div
+        (click)="deleteUser(user)"
+        class="user__delete" 
+      >
+        <img
+          src="assets/cross.svg"
+          alt="delete"
+        >
+      </div>
+
+      <!-- Username + Age inline -->
+      <div
+        class="user__details"
+      >
+        <h1>{{user.username}}</h1>
+        <p>({{user.age}} y/o)</p>
+      </div>
+
+      <!-- E-Mail -->
+      <p class="user__email">{{user.email}}</p>
+
+      <!-- Interests -->
+      <div
+        class="user__interests"
+      >
+        <span
+          *ngFor="let interest of user.interests"
+        >{{interest}}</span>
+      </div>
+    </div>
+  </app-panel>
+
+  <!-- User creation form panel -->
+  <app-panel
+    title='Create User'
+    class="panel--form"
+  >
+    <!-- Creation form -->
+    <form
+      [formGroup]="creationForm"
+      (ngSubmit)="userSubmit()"
+      class="user-form"
+    >
+
+      <!-- Input controls -->
+      <app-textbox
+        placeholder="Username"
+        [control]="fcUsername"
+        icon="user"
+      ></app-textbox>
+      <app-textbox
+        placeholder="Age"
+        [control]="fcAge"
+        icon="calendar"
+      ></app-textbox>
+      <app-textbox
+        placeholder="E-Mail"
+        [control]="fcEmail"
+        icon="mail"
+      ></app-textbox>
+      <app-textbox
+        placeholder="Interests"
+        [control]="fcInterests"
+        icon="tag"
+      ></app-textbox>
+
+      <!-- Submit button -->
+      <app-button
+        text="Create User"
+        [submit]="true"
+        [disabled]="!creationForm.valid"
+      ></app-button>
+    </form>
+  </app-panel>
+</div>
