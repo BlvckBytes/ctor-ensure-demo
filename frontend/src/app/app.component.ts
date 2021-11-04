@@ -54,7 +54,6 @@ export class AppComponent {
       interests: '',
     });
 
-
     // Attach validation for user-model using the formMapper
     validation.attachToForm('user', this.creationForm, this.formMapper);
   }

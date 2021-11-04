@@ -4,6 +4,21 @@
 
 This project demonstrates how an intended usecase of [ctor-ensure](https://github.com/BlvckBytes/ctor-ensure) might look like, with both the backend and the frontend as example implementations.
 
+## Table of Contents
+
+* [Backend](#backend)
+  * [Installation](#installation)
+  * [Overview](#overview)
+  * [Database](#database)
+  * [Exception Mapping](#exception-mapping)
+  * [Validation Endpoint](#validation-endpoint)
+  * [Model Definition](#model-definition)
+* [Frontend](#frontend)
+  * [Installation](#installation-1)
+  * [Overview](#overview-1)
+  * [Components](#components)
+  * [Validation Service](#validation-service)
+
 ## Backend
 
 ### Installation

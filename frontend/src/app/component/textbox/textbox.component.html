@@ -19,7 +19,10 @@
 
 <!-- Only render errors when control has been touched or changed -->
 <!-- This helps to not overwhelm the user -->
-<div class="errors" *ngIf="control.touched || control.dirty">
+<div
+  class="errors"
+  *ngIf="control.touched || control.dirty"
+>
   <!-- Iterate all errors from ctorEnsure (descriptions) -->
   <p
     *ngFor="let error of control.errors?.ctorEnsure || []"
