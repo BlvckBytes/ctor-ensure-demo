@@ -87,6 +87,7 @@
 
 .errors {
   text-align: center;
+  padding: .125rem .5rem;
 
   :host::ng-deep & p {
     color: var(--warning);

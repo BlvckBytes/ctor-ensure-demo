@@ -37,19 +37,23 @@ export class ValidationService {
   ) {
     const prev$ = new BehaviorSubject<ValidationError[]>([]);
 
-    // Merge value change and "artificial" initial call
-    merge(form.valueChanges, of(form.value))
-    .pipe(
-      // Filter out calls where form is unchanged
-      distinctUntilChanged((x, y) => Object.keys(x).every(it => x[it] === y[it])),
+    merge(
+      // Unique-ified, debounced, cached form value change
+      form.valueChanges.pipe(
+        // Filter out calls where form is unchanged
+        distinctUntilChanged((x, y) => Object.keys(x).every(it => x[it] === y[it])),
 
-      // Instantly re-set previous validation result
-      tap(() => {
-        this.updateErrors(form, prev$)
-      }),
+        // Instantly re-set previous validation result
+        tap(() => {
+          this.updateErrors(form, prev$)
+        }),
 
-      // Debounce with a delay of 500ms
-      debounceTime(500)
+        // Debounce with a delay of 400ms
+        debounceTime(400)
+      ),
+
+      // "Artificial" initial call
+      of(form.value)
     )
     .subscribe(v => {
       // Update errors using the result from API
@@ -68,13 +72,22 @@ export class ValidationService {
    * @param res Validation result
    */
   private updateErrors(form: FormGroup, res: Observable<ValidationError[]>) {
+    // Terminate after one element
     res.pipe(take(1)).subscribe(errors => {
+
+      // Iterate all controls by their name
       Object.keys(form.controls).forEach(ctl => {
+
+        // Get control instance and it's errors from list
         const targ = form.controls[ctl];
         const errs = errors.filter(it => it.field === ctl);
 
+        // Errors found, set
         if (errs.length > 0)
           targ.setErrors({ ctorEnsure: errs.map(it => it.description) });
+
+        // No errors, reset through updating
+        // (this falls back to sync validators' state)
         else
           targ.updateValueAndValidity();
       });

@@ -6,6 +6,7 @@
   border-radius: .7rem;
   padding: 1.5rem 0;
 
+  // Title floats outside of box
   & > h3:first-of-type {
     position: absolute;
     top: -1.5rem;
@@ -15,6 +16,7 @@
   }
 }
 
+// Add scrollbar
 .scrollable {
   overflow-y: scroll;
   height: 100%;

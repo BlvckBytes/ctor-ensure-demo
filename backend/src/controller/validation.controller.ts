@@ -12,6 +12,7 @@ export class ValidationController {
   ) {
     const res = validateCtor(name, body);
 
+    // This model has not been registered using @CtorEnsure
     if (res === null)
       throw new BadRequestException('Model not found!');
 

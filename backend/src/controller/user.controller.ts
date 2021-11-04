@@ -30,7 +30,7 @@ export class UserController {
     if (res.length === this.users.length)
       throw new HttpException(`There is no 'user' with the id '${id}'!`, HttpStatus.NOT_FOUND);
 
-    // "Delete"
+    // "Delete" from DB
     this.users = res;
   }
 }
