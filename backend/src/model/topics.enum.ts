@@ -5,4 +5,5 @@ export enum Topic {
   MARKETING,
   SEO,
   ANOTHER,
+  JUSTATEST,
 }

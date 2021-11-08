@@ -1,0 +1,11 @@
+<label for="lang">Choose a validation language:</label>
+<select
+  name="lang"
+  #select
+  (change)="currLang$?.next(select.value)"
+>
+  <option
+    *ngFor="let lang of langs" 
+    value="{{lang.value}}"
+  >{{lang.representation}}</option>
+</select>

@@ -9,6 +9,7 @@ import { TextboxComponent } from './component/textbox/textbox.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from './component/button/button.component';
+import { LangSelComponent } from './component/lang-sel/lang-sel.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { ButtonComponent } from './component/button/button.component';
     PanelComponent,
     TextboxComponent,
     ButtonComponent,
+    LangSelComponent,
   ],
   imports: [
     CommonModule,

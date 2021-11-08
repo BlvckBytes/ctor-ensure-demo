@@ -1,5 +1,5 @@
-import { BadRequestException, Body, Controller, HttpCode, Param, Post } from '@nestjs/common';
-import { validateCtor } from 'ctor-ensure/lib';
+import { BadRequestException, Body, Controller, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { UnknownLanguageException, validateCtor } from 'ctor-ensure/lib';
 
 @Controller('validate')
 export class ValidationController {
@@ -8,14 +8,21 @@ export class ValidationController {
   @HttpCode(200)
   validateModel(
     @Param('name') name: string,
+    @Query('lang') lang = '',
     @Body() body: any,
   ) {
-    const res = validateCtor(name, body);
+    try {
+      const res = validateCtor(name, body, lang);
 
-    // This model has not been registered using @CtorEnsure
-    if (res === null)
-      throw new BadRequestException('Model not found!');
+      // This model has not been registered using @CtorEnsure
+      if (res === null)
+        throw new BadRequestException('Model not found!');
 
-    return res;
+      return res;
+    } catch (e: any) {
+      if (e instanceof UnknownLanguageException)
+        throw new BadRequestException('Language not found!');
+      throw e;
+    }
   }
 }

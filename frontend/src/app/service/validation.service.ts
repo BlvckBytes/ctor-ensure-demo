@@ -1,10 +1,10 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";
 import { ValidationError } from "../model/validation-error.model";
 import { BehaviorSubject, merge, Observable, of } from "rxjs";
 import { FormGroup } from "@angular/forms";
-import { debounceTime, distinctUntilChanged, take, tap } from "rxjs/operators";
+import { debounceTime, distinctUntilChanged, map, take, tap } from "rxjs/operators";
 
 @Injectable()
 export class ValidationService {
@@ -18,10 +18,15 @@ export class ValidationService {
    * Models are decorated with @CtorEnsure in the backend
    * @param model Model's displayname
    * @param value Value to validate
+   * @param lang Language of validation errors
    * @returns An array of errors, empty if value is valid
    */
-  validateObject(model: string, value: any): Observable<ValidationError[]> {
-    return this.http.post<ValidationError[]>(`${environment.apiUrl}/validate/${model}`, value)
+  validateObject(model: string, value: any, lang = ''): Observable<ValidationError[]> {
+    const params = new HttpParams().set('lang', lang);
+    return this.http.post<ValidationError[]>(`${environment.apiUrl}/validate/${model}`, value, {
+      // Only apply lang param if it's not empty
+      params: lang === '' ? undefined : params,
+    });
   }
 
   /**
@@ -33,7 +38,9 @@ export class ValidationService {
   attachToForm(
     model: string,
     form: FormGroup,
-    mapper?: (input: any) => any
+    mapper?: (input: any) => any,
+    // Default language if no subject provided
+    lang$: BehaviorSubject<string> = new BehaviorSubject(''),
   ) {
     const prev$ = new BehaviorSubject<ValidationError[]>([]);
 
@@ -52,16 +59,23 @@ export class ValidationService {
         debounceTime(400)
       ),
 
+      // Language changes trigger form value re-evaluation
+      // in order to get the new language messages
+      lang$.pipe(map(() => form.value)),
+
       // "Artificial" initial call
       of(form.value)
     )
     .subscribe(v => {
-      // Update errors using the result from API
-      this.updateErrors(form,
-        this.validateObject(model, mapper ? mapper(v) : v)
-        // Cache result by tapping
-        .pipe(tap(res => prev$.next(res)))
-      );
+      // Get the currently applied language from language subject
+      lang$.pipe(take(1)).subscribe(lang => {
+        // Update errors using the result from API
+        this.updateErrors(form,
+          this.validateObject(model, mapper ? mapper(v) : v, lang)
+          // Cache result by tapping
+          .pipe(tap(res => prev$.next(res)))
+        );
+      })
     });
   }
 

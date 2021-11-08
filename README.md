@@ -6,6 +6,7 @@ This project demonstrates how an intended usecase of [ctor-ensure](https://githu
 
 ## Table of Contents
 
+* [Preview](#preview)
 * [Backend](#backend)
   * [Installation](#installation)
   * [Overview](#overview)
@@ -18,6 +19,9 @@ This project demonstrates how an intended usecase of [ctor-ensure](https://githu
   * [Overview](#overview-1)
   * [Components](#components)
   * [Validation Service](#validation-service)
+
+## Preview
+![Demo](img/demo.png)
 
 ## Backend
 
@@ -83,7 +87,7 @@ This just groups errors by the field-name, returns a `400`, the current timestam
 
 ### Validation Endpoint
 
-`ctor-ensure` provides a function called `validateCtor`, which validates a constructor from a model by it's `displayname` by using any plain object's fields. I exposed this functionallity as a REST endpoint, which passes the `name` as a URL-parameter and the body as the request-body itself.
+`ctor-ensure` provides a function called `validateCtor`, which validates a constructor from a model by it's `displayname` by using any plain object's fields, while supporting a language to be used with rendering templates as a third parameter, `templateLang`. I exposed this functionallity as a REST endpoint, which passes the `name` as a URL-parameter, the body as the request-body itself and the language optionally through a query parameter, where the fallback is an empty string (default language without suffixes in .ENV).
 
 ```typescript
 @Controller('validate')
@@ -93,15 +97,22 @@ export class ValidationController {
   @HttpCode(200)
   validateModel(
     @Param('name') name: string,
+    @Query('lang') lang = '',
     @Body() body: any,
   ) {
-    const res = validateCtor(name, body);
+    try {
+      const res = validateCtor(name, body, lang);
 
-    // This model has not been registered using @CtorEnsure
-    if (res === null)
-      throw new BadRequestException('Model not found!');
+      // This model has not been registered using @CtorEnsure
+      if (res === null)
+        throw new BadRequestException('Model not found!');
 
-    return res;
+      return res;
+    } catch (e: any) {
+      if (e instanceof UnknownLanguageException)
+        throw new BadRequestException('Language not found!');
+      throw e;
+    }
   }
 }
 ```
@@ -289,23 +300,28 @@ This function takes in any object (the form's value) and responds with a mapped 
 That's all you need! Now, just inject the `ValidationService` into your component, and call the following method on it:
 
 ```typescript
-validation.attachToForm('user', this.creationForm, this.formMapper);
+validation.attachToForm('user', this.creationForm, this.formMapper, this.lang$);
 ```
 
-It attaches live backend validation using the model `user` to the form group, using the mapper we talked about earlier. It's an optional argument, just in case. Now, the form and it's controls won't be valid until they actually match up with the schema defined in the backend.
+It attaches live backend validation using the model `user` to the form group, using the mapper we talked about earlier. It's an optional argument, as is the language BehaviorSubject, `this.lang$`. It holds the current language as a string, so that the form validation can respond accordingly. Now, the form and it's controls won't be valid until they actually match up with the schema defined in the backend.
 
 Let's look into the magic behind this. First of all, there's just a method which calls the REST endpoint for validating objects as models.
 
 ```typescript
 /**
-  * Validate any given object by it's corresponding model-name
-  * Models are decorated with @CtorEnsure in the backend
-  * @param model Model's displayname
-  * @param value Value to validate
-  * @returns An array of errors, empty if value is valid
-  */
-validateObject(model: string, value: any): Observable<ValidationError[]> {
-  return this.http.post<ValidationError[]>(`${environment.apiUrl}/validate/${model}`, value)
+ * Validate any given object by it's corresponding model-name
+ * Models are decorated with @CtorEnsure in the backend
+ * @param model Model's displayname
+ * @param value Value to validate
+ * @param lang Language of validation errors
+ * @returns An array of errors, empty if value is valid
+ */
+validateObject(model: string, value: any, lang = ''): Observable<ValidationError[]> {
+  const params = new HttpParams().set('lang', lang);
+  return this.http.post<ValidationError[]>(`${environment.apiUrl}/validate/${model}`, value, {
+    // Only apply lang param if it's not empty
+    params: lang === '' ? undefined : params,
+  });
 }
 ```
 
@@ -313,15 +329,17 @@ Calling this whenever the form changed using `user` as the model and `form.value
 
 ```typescript
 /**
-  * Attach a live backend-validation to a given form
-  * @param model Model's displayname, registered in backend using @CtorEnsure
-  * @param form Form to attach to
-  * @param mapper Mapper used for submitting
-  */
+ * Attach a live backend-validation to a given form
+ * @param model Model's displayname, registered in backend using @CtorEnsure
+ * @param form Form to attach to
+ * @param mapper Mapper used for submitting
+ */
 attachToForm(
   model: string,
   form: FormGroup,
-  mapper?: (input: any) => any
+  mapper?: (input: any) => any,
+  // Default language if no subject provided
+  lang$: BehaviorSubject<string> = new BehaviorSubject(''),
 ) {
   const prev$ = new BehaviorSubject<ValidationError[]>([]);
 
@@ -340,21 +358,28 @@ attachToForm(
       debounceTime(400)
     ),
 
+    // Language changes trigger form value re-evaluation
+    // in order to get the new language messages
+    lang$.pipe(map(() => form.value)),
+
     // "Artificial" initial call
     of(form.value)
   )
   .subscribe(v => {
-    // Update errors using the result from API
-    this.updateErrors(form,
-      this.validateObject(model, mapper ? mapper(v) : v)
-      // Cache result by tapping
-      .pipe(tap(res => prev$.next(res)))
-    );
+    // Get the currently applied language from language subject
+    lang$.pipe(take(1)).subscribe(lang => {
+      // Update errors using the result from API
+      this.updateErrors(form,
+        this.validateObject(model, mapper ? mapper(v) : v, lang)
+        // Cache result by tapping
+        .pipe(tap(res => prev$.next(res)))
+      );
+    })
   });
-}
+  }
 ```
 
-The `.subscribe` block, which internally actually calls the backend and updates the errors as well as the error-cache only gets called once initially, and when: The form-value actually changed AND there has been a time-window of `400ms` between changes or since the last change, to kind of debounce keystrokes. Every call outside of this debounce will receive the cached list of errors.
+The `.subscribe` block, which internally actually calls the backend and updates the errors as well as the error-cache only gets called once initially, and when: The form-value actually changed AND there has been a time-window of `400ms` between changes OR since the last change, to kind of debounce keystrokes, OR on language changes. Every call outside of this debounce will receive the cached list of errors.
 
 Errors are appended to the form's control by name, so the form control names need to correspond to the model fields. The `updateErrros` routine is quite simple.
 

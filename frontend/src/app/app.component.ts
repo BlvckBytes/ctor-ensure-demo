@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from './model/user.model';
 import { UserService } from './service/user.service';
 import { ValidationService } from './service/validation.service';
@@ -14,8 +14,7 @@ export class AppComponent {
 
   creationForm: FormGroup;
   users$?: Observable<User[]>;
-
-  //#region Form control member getters
+  lang$: BehaviorSubject<string>;
 
   get fcUsername() {
     return this.getFC('username');
@@ -36,13 +35,14 @@ export class AppComponent {
   private getFC(name: string): FormControl {
     return this.creationForm.get(name) as FormControl;
   }
-  //#endregion
 
   constructor(
     private userService: UserService,
     validation: ValidationService,
     fb: FormBuilder,
   ) {
+    this.lang$ = new BehaviorSubject('');
+
     // Load existing users from backend
     this.updateUsers();
 
@@ -55,7 +55,7 @@ export class AppComponent {
     });
 
     // Attach validation for user-model using the formMapper
-    validation.attachToForm('user', this.creationForm, this.formMapper);
+    validation.attachToForm('user', this.creationForm, this.formMapper, this.lang$);
   }
 
   // Map the form's value to the model's datastructure

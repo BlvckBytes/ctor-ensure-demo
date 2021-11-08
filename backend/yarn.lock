@@ -1864,9 +1864,9 @@ cssstyle@^2.3.0:
     cssom "~0.3.6"
 
 ctor-ensure@^1.0.3:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/ctor-ensure/-/ctor-ensure-1.0.6.tgz#a56da0867eb29ac7c700624bbc8acc422a11f8fc"
-  integrity sha512-HmSozVMFIQXy+x1wWYmXyeh/N8VTySqutkFe7/9DTcQKQEFg6mQnDUHRaMUMNoVHja2POWFXvRMUDnvyYcmcnQ==
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/ctor-ensure/-/ctor-ensure-1.0.11.tgz#95e68c9b412a6fc5529a2d13f961640cf1d4aa2a"
+  integrity sha512-KdvJY5jN+riIECHAAiMUJI6TDAkszHYLLYlMYf9y+IM2CS58YOE3BY0+/tX5RTaOaJjYhOBEpR8MLcChwd9Uhw==
   dependencies:
     dotenv "^10.0.0"
     reflect-metadata "^0.1.13"
@@ -5214,14 +5214,9 @@ utils-merge@1.0.1:
   resolved "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uuid@8.3.2:
+uuid@8.3.2, uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz"
-  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
-
-uuid@^8.3.2:
-  version "8.3.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-compile-cache@^2.0.3:
