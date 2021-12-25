@@ -1863,10 +1863,10 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-ctor-ensure@^1.0.3:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/ctor-ensure/-/ctor-ensure-1.0.11.tgz#95e68c9b412a6fc5529a2d13f961640cf1d4aa2a"
-  integrity sha512-KdvJY5jN+riIECHAAiMUJI6TDAkszHYLLYlMYf9y+IM2CS58YOE3BY0+/tX5RTaOaJjYhOBEpR8MLcChwd9Uhw==
+ctor-ensure@^1.0.16:
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/ctor-ensure/-/ctor-ensure-1.0.18.tgz#9f3f470cf24b46e4f7ad8c3104637c69ee024d82"
+  integrity sha512-AY8MuQn4ahDqClxIk0vBpNYk2BY9Jp1uos4d3cx6MPwB1DjeVHd9JLueGa2jyxjzLPbdngoBwkzblDz/QTTdfA==
   dependencies:
     dotenv "^10.0.0"
     reflect-metadata "^0.1.13"

@@ -44,11 +44,4 @@ export default class UserModel {
     ])
     public interests: Topic[],
   ) {}
-
-  // Parse the model from any request body
-  static fromBody(body: any): UserModel {
-    return new UserModel(
-      null, body.username, body.email, body.age, body.interests,
-    );
-  }
 }

@@ -14,6 +14,7 @@ This project demonstrates how an intended usecase of [ctor-ensure](https://githu
   * [Exception Mapping](#exception-mapping)
   * [Validation Endpoint](#validation-endpoint)
   * [Model Definition](#model-definition)
+  * [Automated Body Parsing](#automated-body-parsing)
 * [Frontend](#frontend)
   * [Installation](#installation-1)
   * [Overview](#overview-1)
@@ -41,6 +42,7 @@ The framework used is called `NestJS`.
 * 📃 app.module.ts Main module
 * 📂 config
   * 📃 ctor-ensure.exception.filter Exception mapper
+  * 📃 ctor-ensure-pipe.ts Automated body parsing
 * 📂 controller
   * 📃 user.controller.ts User C/R/D
   * 📃 validation.controller.ts Generic model validator
@@ -156,17 +158,33 @@ export default class UserModel {
     ])
     public interests: Topic[],
   ) {}
+}
+```
 
-  // Parse the model from any request body
-  static fromBody(body: any): UserModel {
-    return new UserModel(
-      null, body.username, body.email, body.age, body.interests,
-    );
+### Automated Body Parsing
+
+To make things simple, I wrote a pipe for `CtorEnsure`, which is able to automatically parse ensured classes from request-bodies.
+
+```typescript
+@Injectable()
+class CtorEnsurePipe implements PipeTransform {
+  transform(value: any, metadata: ArgumentMetadata) {
+    if (!isCtorEnsured(metadata.metatype)) return value;
+    return fromObj(metadata.metatype, value);
   }
 }
 ```
 
-This should be nothing special to you, if you're already familiar with `ctor-ensure`. As you can see, I created the method `fromBody`, which just takes in any plain object and converts it to a `UserModel` by field-extraction, always leaving the UUID as null. It doesn't matter if those fields actually exist, as the validator can of course handle null and undefined values very well.
+It simply transforms an input to an output, as all pipes do. By implementing the `PipeTransform`-Interface, I get access to the value itself, as well as some metadata, which is the most important argument: I can decide whether or not the type provided by invoking `@Body() var: TYPE` is being validated or not, using the utility-method `isCtorEnsured`. If that yields false, I just pass the value through and leave it untouched. Otherwise, a quick call to `fromObj` will parse the full class from the provided object, going thorugh all validations behind the scenes.
+
+Using it can be as simple as this:
+
+```typescript
+  @Post()
+  createUser(@Body() user: UserModel) {
+    // TODO: Write code...
+  }
+```
 
 ## Frontend
 

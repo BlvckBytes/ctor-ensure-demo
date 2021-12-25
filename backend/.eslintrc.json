@@ -30,6 +30,7 @@
       "quotes": ["error", "single", { 
           "allowTemplateLiterals": true
       }],
+      "no-param-reassign": "off",
       "space-before-blocks": ["error", "always"],
       "arrow-spacing": ["error", {
           "before": true,

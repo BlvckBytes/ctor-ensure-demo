@@ -9,9 +9,8 @@ export class UserController {
   users: UserModel[] = [];
 
   @Post()
-  createUser(@Body() body: any) {
-    // Create user with random UUID
-    const user = UserModel.fromBody(body);
+  createUser(@Body() user: UserModel) {
+    // Generate random ID
     user.id = v4();
     this.users.push(user);
   }
